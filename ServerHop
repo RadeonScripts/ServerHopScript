@@ -1,0 +1,54 @@
+local Http = game:GetService("HttpService")
+local TPS = game:GetService("TeleportService")
+local Api = "https://games.roblox.com/v1/games/"
+
+local _place = 142823291
+local _servers = Api.._place.."/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true"
+
+
+local raw
+function ListServers(cursor)
+    local success, result
+
+        success, result = pcall(function()
+            raw = game:HttpGet(_servers .. ((cursor and "&cursor="..cursor) or ""))
+        end)
+        if not success then
+            if string.find(result, "429") then
+                task.wait(10)
+            else
+                error("HTTP request failed: " .. result)
+                
+            end
+        end
+
+    wait(2)
+    return Http:JSONDecode(raw)
+end
+
+local Server, Next; repeat
+    local Servers = ListServers(Next)
+
+    for _, server in ipairs(Servers.data) do
+        if server.playing > 4 and server.playing ~= 8 then
+            Server = server
+            break
+        end
+
+      Next = Servers.nextPageCursor  
+    end
+until Server or not Next
+
+
+
+local function CheckPLRCount()
+  wait(2)
+  local PlrCount = #game:GetService("Players"):GetPlayers()
+  if PlrCount <= 4 then
+    TPS:TeleportToPlaceInstance(_place,Server.id,game:GetService('Players').LocalPlayer)
+  end
+end
+
+
+game.Players.PlayerAdded:Connect(CheckPLRCount)
+game.Players.PlayerRemoved:Connect(CheckPLRCount)
