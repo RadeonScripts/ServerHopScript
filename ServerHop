@@ -2,7 +2,7 @@ local Http = game:GetService("HttpService")
 local TPS = game:GetService("TeleportService")
 local Api = "https://games.roblox.com/v1/games/"
 
-local _place = 142823291
+local _place = 379614936
 local _servers = Api.._place.."/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true"
 
 
